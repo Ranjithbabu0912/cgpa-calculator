@@ -172,9 +172,9 @@ async function scrapeResults(
 
                                 photoUrl:
 
-                                    json.Student_Seq
+                                    studentInfo?.Student_Seq
 
-                                        ? `http://117.240.157.45/CMSAPP/api/User/Account/Photo/Student/${json.Student_Seq}`
+                                        ? `${process.env.BASE_URL}/api/student-photo/${studentInfo.Student_Seq}`
 
                                         : null
                             };
@@ -252,9 +252,9 @@ async function scrapeResults(
 
             photoUrl:
 
-                json.Student_Seq
+                studentInfo?.Student_Seq
 
-                    ? `${process.env.BASE_URL}/api/student-photo/${json.Student_Seq}`
+                    ? `${process.env.BASE_URL}/api/student-photo/${studentInfo.Student_Seq}`
 
                     : null,
 
