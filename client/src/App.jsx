@@ -319,6 +319,19 @@ function App() {
                     <ReportPrintView data={data} registerNo={registerNo} />
                 </div>
             )}
+
+            <div style={copyrightStyle}>
+                Created by{" "}
+                <a
+                    href="https://ranjithbabu.vercel.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={linkStyle}
+                >
+                    Ranjith Babu
+                </a>{" "}
+                ( Department of MCA, GTNAC )
+            </div>
         </>
     );
 }
@@ -385,5 +398,23 @@ const modalHeaderStyle = { padding: '20px 30px', borderBottom: '1px solid #eee',
 const modalBodyStyle = { padding: '30px', overflowY: 'auto', flex: 1, background: '#fff' };
 const printBtnStyle = { padding: '8px 16px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '0.9rem' };
 const closeBtnStyle = { background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#64748b' };
+const copyrightStyle = {
+    textAlign: 'center',
+    padding: '16px',
+    fontSize: '14px',
+    color: '#666',
+    borderTop: '1px solid #e5e5e5',
+    marginTop: '40px',
+    letterSpacing: '0.5px',
+    backgroundColor: '#fafafa',
+};
+
+const linkStyle = {
+    color: 'rgb(30, 41, 59)',
+    textDecoration: 'none',
+    fontWeight: '600',
+    transition: '0.3s ease',
+};
+
 
 export default App;
