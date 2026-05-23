@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 
 const resultRoutes =
     require('./routes/resultRoutes');
+const imageRoutes =
+    require('./routes/imageRoutes');
 
 const app = express();
 
@@ -22,24 +24,26 @@ app.use(bodyParser.json());
 mongoose.connect(
     process.env.MONGO_URI
 )
-.then(() => {
+    .then(() => {
 
-    console.log(
-        'MongoDB Connected'
-    );
+        console.log(
+            'MongoDB Connected'
+        );
 
-})
-.catch(err => {
+    })
+    .catch(err => {
 
-    console.log(err);
+        console.log(err);
 
-});
+    });
 
 // Routes
 app.use(
     '/api',
     resultRoutes
 );
+app.use('/api', imageRoutes);
+
 
 // Health
 app.get('/api/health', (req, res) => {
