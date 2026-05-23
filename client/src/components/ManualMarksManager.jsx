@@ -10,7 +10,7 @@ import {
     GraduationCap
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://cgpa-backend-1wfh.onrender.com';
 
 const initialForm = {
     semester: '',

@@ -7,7 +7,7 @@ import ReportFooter from './components/ReportFooter';
 import ReportPrintView from './components/ReportPrintView';
 import ManualMarksManager from './components/ManualMarksManager';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://cgpa-backend-1wfh.onrender.com';
 
 function App() {
     const [registerNo, setRegisterNo] = useState('');
