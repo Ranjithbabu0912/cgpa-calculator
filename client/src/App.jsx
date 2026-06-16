@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, RotateCcw, Printer, Copy, LayoutDashboard, Table as TableIcon, Activity, GraduationCap, ChevronRight, ArchiveRestore } from 'lucide-react';
+import { Search, RotateCcw, Printer, Copy, LayoutDashboard, Table as TableIcon, Activity, GraduationCap, ChevronRight, ArchiveRestore, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StudentProfile from './components/StudentProfile';
 import AnalysisDashboard from './components/AnalysisDashboard';
@@ -7,12 +7,15 @@ import ReportFooter from './components/ReportFooter';
 import ReportPrintView from './components/ReportPrintView';
 import ManualMarksManager from './components/ManualMarksManager';
 
-const API_URL = 'https://cgpa-backend-1wfh.onrender.com';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : 'https://cgpa-backend-1wfh.onrender.com';
 
 function App() {
     const [registerNo, setRegisterNo] = useState('');
     const [dob, setDob] = useState('');
     const [loading, setLoading] = useState(false);
+    const [backgroundLoading, setBackgroundLoading] = useState(false);
     const [data, setData] = useState(null);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('sgpa');
@@ -33,6 +36,28 @@ function App() {
         if (clean.length <= 2) return clean;
         if (clean.length <= 4) return clean.slice(0, 2) + '-' + clean.slice(2);
         return clean.slice(0, 2) + '-' + clean.slice(2, 4) + '-' + clean.slice(4, 8);
+    };
+
+    const triggerBackgroundFetch = async (regNo, db) => {
+        setBackgroundLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/api/fetch-results`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registerNo: regNo, dob: db, forceRefresh: true }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setData(result);
+                localStorage.setItem('lastResults', JSON.stringify(result));
+            }
+        } catch (err) {
+            console.error('Background fetch error:', err);
+        } finally {
+            setBackgroundLoading(false);
+        }
     };
 
     const handleFetch = async (e) => {
@@ -60,17 +85,20 @@ function App() {
                 localStorage.setItem('lastResults', JSON.stringify(result));
                 localStorage.setItem('lastRegNo', registerNo);
                 localStorage.setItem('lastDob', dob);
+
+                if (result.isCached) {
+                    setLoading(false); // Stop block loader immediately
+                    triggerBackgroundFetch(registerNo, dob); // Pull fresh results in background
+                } else {
+                    setLoading(false);
+                }
             } else {
                 setError(result.message || 'Failed to fetch results');
+                setLoading(false);
             }
         } catch (err) {
             console.error('Fetch error:', err);
-            if (err.name === 'AbortError') {
-                setError('Request timed out. The college portal is responding too slowly.');
-            } else {
-                setError('Connection failed. Please ensure the backend server is running and the college portal is accessible.');
-            }
-        } finally {
+            setError('Connection failed. Please ensure the backend server is running and the college portal is accessible.');
             setLoading(false);
         }
     };
@@ -167,6 +195,12 @@ function App() {
 
                 {data && (
                     <div className="results-section">
+                        {backgroundLoading && (
+                            <div className="no-print background-updating-indicator" style={backgroundUpdatingIndicatorStyle}>
+                                <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                                <span>Syncing fresh results from college portal in background...</span>
+                            </div>
+                        )}
                         <StudentProfile data={data} registerNo={registerNo} />
 
                         <div className="no-print cgpa-container" style={cgpaContainerStyle}>
@@ -337,6 +371,20 @@ function App() {
 }
 
 // Updated Styles
+const backgroundUpdatingIndicatorStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    padding: '12px 24px',
+    background: 'rgba(99, 102, 241, 0.08)',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+    borderRadius: '12px',
+    marginBottom: '20px',
+    fontSize: '0.9rem',
+    color: '#a5b4fc',
+    fontWeight: 500
+};
 const headerStyle = { textAlign: 'center', marginBottom: '50px' };
 const titleStyle = { fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-1px', marginBottom: '10px' };
 const subtitleStyle = { color: 'var(--text-secondary)', fontSize: '1.2rem', letterSpacing: '1px' };

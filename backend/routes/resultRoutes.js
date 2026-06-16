@@ -14,7 +14,8 @@ router.post(
 
             const {
                 registerNo,
-                dob
+                dob,
+                forceRefresh
             } = req.body;
 
             if (!registerNo || !dob) {
@@ -25,13 +26,39 @@ router.post(
                 });
             }
 
+            const uppercaseRegNo = registerNo.toUpperCase();
+
+            // Check if results already exist in database and return them instantly
+            if (!forceRefresh) {
+                const existingResults = await Result.find({ registerNo: uppercaseRegNo });
+                if (existingResults.length > 0) {
+                    const analyzeResults = require('../utils/analyzeResults');
+                    const analytics = analyzeResults(existingResults);
+                    const firstResult = existingResults[0];
+                    return res.json({
+                        success: true,
+                        student: firstResult.student,
+                        department: firstResult.department,
+                        batch: firstResult.batch,
+                        photoUrl: firstResult.photoUrl,
+                        results: existingResults,
+                        isCached: true,
+                        ...analytics
+                    });
+                }
+            }
+
+            // Otherwise, scrape results from the college portal
             const result =
                 await scrapeResults(
-                    registerNo,
+                    uppercaseRegNo,
                     dob
                 );
 
-            res.json(result);
+            res.json({
+                ...result,
+                isCached: false
+            });
 
         } catch (error) {
 

@@ -67,124 +67,131 @@ async function scrapeResults(
         let studentInfo = null;
 
         for (const exam of exams) {
-
-            console.log(
-                `Fetching ${exam.name}`
-            );
-
-            const response =
-                await axios.get(
-
-                    `http://117.240.157.45/CMSAPP/api/coe/semester-exam/view-exam-result`,
-
-                    {
-                        params: {
-
-                            dateOfBirth:
-                                isoDob,
-
-                            regNo:
-                                registerNo,
-
-                            semesterExamId:
-                                exam.id
-                        }
-                    }
+            try {
+                console.log(
+                    `Fetching ${exam.name}`
                 );
 
-            const json =
-                response.data;
+                const response =
+                    await axios.get(
 
-            if (
-                json &&
-                json.ExamResultSubjects
-            ) {
+                        `http://117.240.157.45/CMSAPP/api/coe/semester-exam/view-exam-result`,
 
-                studentInfo = json;
+                        {
+                            params: {
 
-                const subjects =
+                                dateOfBirth:
+                                    isoDob,
 
-                    json.ExamResultSubjects.map(
+                                regNo:
+                                    registerNo,
 
-                        subj => {
-
-                            const total =
-
-                                Number(
-                                    subj.TotalMark || 0
-                                );
-
-                            return {
-
-                                registerNo,
-
-                                student:
-                                    json.StudentName,
-
-                                department:
-                                    json.DepartmentName,
-
-                                batch:
-                                    json.BatchName,
-
-                                semester:
-                                    Number(
-                                        subj.SemesterNo || 0
-                                    ),
-
-                                subjectCode:
-                                    subj.SubjectCode,
-
-                                subjectName:
-                                    subj.SubjectName,
-
-                                internalMarks:
-                                    Number(
-                                        subj.InternalMark || 0
-                                    ),
-
-                                externalMarks:
-                                    Number(
-                                        subj.ExternalMark || 0
-                                    ),
-
-                                totalMarks:
-                                    total,
-
-                                credits:
-                                    Number(
-                                        subj.CreditPoint || 4
-                                    ),
-
-                                grade:
-
-                                    subj.Grade ||
-
-                                    getGradeFromMarks(
-                                        total
-                                    ),
-
-                                status:
-
-                                    total >= 40
-                                        ? 'Pass'
-                                        : 'Fail',
-
-                                photoUrl:
-
-                                    studentInfo?.Student_Seq
-
-                                        ? `${process.env.BASE_URL}/api/student-photo/${studentInfo.Student_Seq}`
-
-                                        : null
-                            };
+                                semesterExamId:
+                                    exam.id
+                            }
                         }
                     );
 
-                allSubjects.push(
-                    ...subjects
-                );
+                const json =
+                    response.data;
+
+                if (
+                    json &&
+                    json.ExamResultSubjects
+                ) {
+
+                    studentInfo = json;
+
+                    const subjects =
+
+                        json.ExamResultSubjects.map(
+
+                            subj => {
+
+                                const total =
+
+                                    Number(
+                                        subj.TotalMark || 0
+                                    );
+
+                                return {
+
+                                    registerNo,
+
+                                    student:
+                                        json.StudentName,
+
+                                    department:
+                                        json.DepartmentName,
+
+                                    batch:
+                                        json.BatchName,
+
+                                    semester:
+                                        Number(
+                                            subj.SemesterNo || 0
+                                        ),
+
+                                    subjectCode:
+                                        subj.SubjectCode,
+
+                                    subjectName:
+                                        subj.SubjectName,
+
+                                    internalMarks:
+                                        Number(
+                                            subj.InternalMark || 0
+                                        ),
+
+                                    externalMarks:
+                                        Number(
+                                            subj.ExternalMark || 0
+                                        ),
+
+                                    totalMarks:
+                                        total,
+
+                                    credits:
+                                        Number(
+                                            subj.CreditPoint || 4
+                                        ),
+
+                                    grade:
+
+                                        subj.Grade ||
+
+                                        getGradeFromMarks(
+                                            total
+                                        ),
+
+                                    status:
+
+                                        total >= 40
+                                            ? 'Pass'
+                                            : 'Fail',
+
+                                    photoUrl:
+
+                                        studentInfo?.Student_Seq
+
+                                            ? `${process.env.BASE_URL || 'http://localhost:5000'}/api/student-photo/${studentInfo.Student_Seq}`
+
+                                            : null
+                                };
+                            }
+                        );
+
+                    allSubjects.push(
+                        ...subjects
+                    );
+                }
+            } catch (examError) {
+                console.warn(`  Warning: Failed to fetch ${exam.name} for ${registerNo}:`, examError.response?.data?.Message || examError.message);
             }
+        }
+
+        if (allSubjects.length === 0) {
+            throw new Error('No results found / Student not found on college portal');
         }
 
         const uniqueSubjects = [
@@ -254,7 +261,7 @@ async function scrapeResults(
 
                 studentInfo?.Student_Seq
 
-                    ? `${process.env.BASE_URL}/api/student-photo/${studentInfo.Student_Seq}`
+                    ? `${process.env.BASE_URL || 'http://localhost:5000'}/api/student-photo/${studentInfo.Student_Seq}`
 
                     : null,
 
