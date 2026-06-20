@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, RotateCcw, Printer, Copy, LayoutDashboard, Table as TableIcon, Activity, GraduationCap, ChevronRight, ArchiveRestore, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StudentProfile from './components/StudentProfile';
@@ -22,15 +22,6 @@ function App() {
     const [showPreview, setShowPreview] = useState(false);
     const [selectedSemesterResults, setSelectedSemesterResults] = useState(null);
 
-    useEffect(() => {
-        const savedData = localStorage.getItem('lastResults');
-        const savedReg = localStorage.getItem('lastRegNo');
-        const savedDob = localStorage.getItem('lastDob');
-
-        if (savedData) setData(JSON.parse(savedData));
-        if (savedReg) setRegisterNo(savedReg);
-        if (savedDob) setDob(savedDob);
-    }, []);
 
     const formatDob = (value) => {
         let clean = value.replace(/\D/g, '');
@@ -52,7 +43,6 @@ function App() {
 
             if (result.success) {
                 setData(result);
-                localStorage.setItem('lastResults', JSON.stringify(result));
             }
         } catch (err) {
             console.error('Background fetch error:', err);
@@ -84,9 +74,6 @@ function App() {
 
             if (result.success) {
                 setData(result);
-                localStorage.setItem('lastResults', JSON.stringify(result));
-                localStorage.setItem('lastRegNo', registerNo);
-                localStorage.setItem('lastDob', dob);
 
                 if (result.isCached) {
                     setLoading(false); // Stop block loader immediately
@@ -110,9 +97,6 @@ function App() {
         setRegisterNo('');
         setDob('');
         setSelectedSemesterResults(null);
-        localStorage.removeItem('lastResults');
-        localStorage.removeItem('lastRegNo');
-        localStorage.removeItem('lastDob');
     };
 
     const handleDownload = () => {

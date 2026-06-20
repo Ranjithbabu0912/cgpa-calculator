@@ -1037,28 +1037,7 @@
             }
         });
 
-        // Load persisted data
-        window.addEventListener('load', () => {
-            const savedData = localStorage.getItem('lastResults');
-            const savedReg = localStorage.getItem('lastRegNo');
-            const savedDob = localStorage.getItem('lastDob');
 
-            if (savedReg) registerInput.value = savedReg;
-            if (savedDob) dobInput.value = savedDob;
-
-            if (savedData) {
-                try {
-                    currentData = JSON.parse(savedData);
-                    displayResults(currentData);
-                    resultsSection.classList.add('show');
-                    // Scroll to results
-                    resultsSection.scrollIntoView({ behavior: 'smooth' });
-                } catch (e) {
-                    console.error('Failed to load saved data', e);
-                    localStorage.removeItem('lastResults');
-                }
-            }
-        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -1217,10 +1196,7 @@
             // Analysis
             displayAnalysis(data);
 
-            // Persist
-            localStorage.setItem('lastResults', JSON.stringify(data));
-            localStorage.setItem('lastRegNo', registerInput.value);
-            localStorage.setItem('lastDob', dobInput.value);
+
         }
 
         // Display analysis
@@ -1390,9 +1366,6 @@
         // Reset app
         function resetApp() {
             currentData = null;
-            localStorage.removeItem('lastResults');
-            localStorage.removeItem('lastRegNo');
-            localStorage.removeItem('lastDob');
 
             resultsSection.classList.remove('show');
             form.reset();
