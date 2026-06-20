@@ -32,10 +32,14 @@
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: #00082b;
     background-image:
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+        linear-gradient(rgba(255, 255, 255, 0.012) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1.5px, transparent 1.5px),
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.14) 0px, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0px, transparent 60%);
+    background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%;
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -319,5 +323,244 @@ body {
 
     .btn-group button {
         width: 100%;
+    }
+}
+
+/* Responsive Results Views */
+.desktop-only-results {
+    display: block;
+}
+
+.mobile-only-results {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only-results {
+        display: none !important;
+    }
+
+    .mobile-only-results {
+        display: flex !important;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .mobile-result-row {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .mobile-result-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .mobile-result-sno {
+        background: var(--primary);
+        color: white;
+        font-weight: 700;
+        font-size: 0.8rem;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .mobile-result-subject {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .mobile-result-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        line-height: 1.3;
+    }
+
+    .mobile-result-code {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-family: monospace;
+    }
+
+    .mobile-result-details {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.03);
+        padding-top: 12px;
+        align-items: center;
+    }
+
+    .mobile-result-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .mobile-result-label {
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .mobile-result-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .mobile-result-status {
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .mobile-result-status.pass {
+        color: var(--success);
+    }
+
+    .mobile-result-status.fail {
+        color: var(--danger);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.analysis-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+/* Redesigned AI Advisor Setup Pane Grid */
+.ai-advisor-setup-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 30px;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .ai-advisor-setup-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 16px;
+    }
+}
+
+/* Snappy preset target buttons */
+.target-preset-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.target-preset-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+.target-preset-btn.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+}
+
+/* Custom adjust buttons */
+.target-adjust-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.target-adjust-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.target-adjust-btn:active {
+    transform: scale(0.95);
+}
+
+/* Timeline Glowing Track Line */
+.ai-advisor-timeline {
+    position: relative;
+    padding-left: 10px;
+}
+
+.ai-advisor-timeline::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    bottom: 15px;
+    left: 21px; /* Centers behind the 24px wide circle node */
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* AI Response Dashboard Grid */
+.ai-response-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-top: 25px;
+}
+
+@media (max-width: 900px) {
+    .ai-response-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }

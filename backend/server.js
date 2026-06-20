@@ -12,6 +12,8 @@ const resultRoutes =
     require('./routes/resultRoutes');
 const imageRoutes =
     require('./routes/imageRoutes');
+const aiRoutes =
+    require('./routes/aiRoutes');
 
 const app = express();
 
@@ -38,11 +40,10 @@ mongoose.connect(
     });
 
 // Routes
-app.use(
-    '/api',
-    resultRoutes
-);
+app.use('/api', resultRoutes);
 app.use('/api', imageRoutes);
+app.use('/api', aiRoutes);
+
 
 
 // Health
@@ -58,7 +59,7 @@ const PORT =
     process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-
+    // Nodemon reload trigger comment updated for Gemini API fix
     console.log(
         `Server running on port ${PORT}`
     );
