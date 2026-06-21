@@ -64,10 +64,12 @@ cgpa-calculator/
 ## 🚀 Setup & Installation
 
 ### Prerequisites
+
 - Node.js (v20.x or above)
 - MongoDB database (local installation or MongoDB Atlas cluster)
 
 ### 1. Configure the Backend
+
 1. Navigate to the backend directory:
    ```bash
    cd backend
@@ -91,6 +93,7 @@ cgpa-calculator/
    ```
 
 ### 2. Configure the Frontend
+
 1. Open a new terminal and navigate to the client directory:
    ```bash
    cd client
@@ -110,24 +113,34 @@ cgpa-calculator/
 ## ⚙️ Technical Details
 
 ### CGPA Calculation Method
+
 The calculator maps academic grades to point thresholds according to the university standard:
-*   **O+ / O:** `10.0`
-*   **D++ / D+ / D:** `9.0` to `7.5`
-*   **A++ / A+ / A:** `7.0` to `6.0`
-*   **B+ / B:** `5.5` to `5.0`
-*   **C+ / C:** `4.5` to `4.0`
-*   **U (Re-appear):** `0.0`
+
+- **O+ / O:** `10.0`
+- **D++ / D+ / D:** `9.0` to `7.5`
+- **A++ / A+ / A:** `7.0` to `6.0`
+- **B+ / B:** `5.5` to `5.0`
+- **C+ / C:** `4.5` to `4.0`
+- **U (Re-appear):** `0.0`
 
 The system calculates:
 $$\text{CGPA} = \frac{\sum (\text{Subject Grade Point} \times \text{Credits})}{\sum \text{Total Credits}}$$
 
 ### Target Feasibility Logic
+
 The AI Target Advisor determines the average SGPA required for the remaining semesters using:
 $$\text{Required SGPA} = \frac{(\text{Target CGPA} \times \text{Total Semesters}) - (\text{Current CGPA} \times \text{Completed Semesters})}{\text{Total Semesters} - \text{Completed Semesters}}$$
+
 - If the required SGPA exceeds `10.0`, the system automatically marks it as **Impossible** and outlines the maximum achievable CGPA instead.
 - Otherwise, it categorizes it as **Challenging**, **Moderate**, or **Safe** and requests an optimized roadmap from Gemini.
 
 ---
 
 ## 🔒 Security & Privacy
+
 No sensitive credentials or student passwords are saved. The application only requires the Register Number and Date of Birth to interface with the college portal API. The MongoDB cache acts as a fast-read cache and does not collect password data.
+
+## 👨‍💻 Author
+
+Ranjith Babu S (Web Developer)
+Portfolio link - https://ranjithbabu.vercel.app/
