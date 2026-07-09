@@ -82,7 +82,7 @@ function App() {
                     setLoading(false);
                 }
             } else {
-                setError(result.message || 'Failed to fetch results');
+                setError(result.error || result.message || 'Failed to fetch results');
                 setLoading(false);
             }
         } catch (err) {
