@@ -52,6 +52,15 @@ body {
     padding: 40px 20px;
 }
 
+.header-logo {
+    width: 120px;
+    height: auto;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+}
+
+
+
 /* Glassmorphism */
 .glass-card {
     background: var(--bg-card);
@@ -238,6 +247,11 @@ body {
 @media (max-width: 768px) {
     .container {
         padding: 20px 10px;
+    }
+
+    .header-logo {
+        width: 60px;
+        margin-right: 10px;
     }
 
     h1 {
