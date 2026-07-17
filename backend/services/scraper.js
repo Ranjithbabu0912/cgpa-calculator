@@ -95,95 +95,98 @@ async function scrapeResults(
                 const json =
                     response.data;
 
-                if (
-                    json &&
-                    json.ExamResultSubjects
-                ) {
-
+                if (json) {
                     studentInfo = json;
+                    const subjectsList = json.ExamResultSubjects || [];
+                    const isHolded = 
+                        json.IsResultHolded === 'Y' || 
+                        json.IsResultHolded === 'Yes' || 
+                        json.isResultHolded === 'Y' || 
+                        json.isResultHolded === 'Yes' || 
+                        json.IsResultHold === 'Y' || 
+                        json.IsResultHold === 'Yes' || 
+                        json.isResultHold === 'Y' || 
+                        json.isResultHold === 'Yes' || 
+                        (json.ResultStatus && json.ResultStatus.toString().toLowerCase().includes('held')) ||
+                        (json.resultStatus && json.resultStatus.toString().toLowerCase().includes('held')) ||
+                        subjectsList.some(
+                            subj => 
+                                subj.IsResultHolded === 'Y' || 
+                                subj.IsResultHolded === 'Yes' || 
+                                subj.isResultHolded === 'Y' || 
+                                subj.isResultHolded === 'Yes' || 
+                                subj.IsResultHold === 'Y' || 
+                                subj.IsResultHold === 'Yes' || 
+                                subj.isResultHold === 'Y' || 
+                                subj.isResultHold === 'Yes' || 
+                                (subj.ResultStatus && subj.ResultStatus.toString().toLowerCase().includes('held')) ||
+                                (subj.resultStatus && subj.resultStatus.toString().toLowerCase().includes('held'))
+                        );
 
-                    const subjects =
+                    console.log(`Exam ${exam.name} API Response (isHolded = ${isHolded}):`, {
+                        subjectsCount: subjectsList.length,
+                        hasHoldedSubject: subjectsList.some(s => s.IsResultHolded === 'Y' || (s.ResultStatus && s.ResultStatus.toString().toLowerCase().includes('held')))
+                    });
 
-                        json.ExamResultSubjects.map(
-
+                    if (isHolded) {
+                        // If it is holded, do NOT collect the subjects response. 
+                        // Instead, create a single placeholder record for this semester.
+                        const semesterNo = Number(
+                            (subjectsList[0] && subjectsList[0].SemesterNo) ||
+                            json.SemesterNo || 
+                            json.Semester || 
+                            (exam.id === 66 ? 1 : 2)
+                        );
+                        allSubjects.push({
+                            registerNo,
+                            student: json.StudentName || 'Student',
+                            department: json.DepartmentName || '',
+                            batch: json.BatchName || '',
+                            semester: semesterNo,
+                            subjectCode: 'WITHHELD',
+                            subjectName: 'Results Withheld',
+                            internalMarks: 0,
+                            externalMarks: 0,
+                            totalMarks: 0,
+                            credits: 0,
+                            grade: 'U',
+                            status: 'Withheld',
+                            isResultHolded: 'Y',
+                            resultStatus: 'With Held',
+                            semesterExamId: exam.id,
+                            photoUrl: studentInfo?.Student_Seq
+                                ? `${process.env.BASE_URL || 'http://localhost:5001'}/api/student-photo/${studentInfo.Student_Seq}`
+                                : null
+                        });
+                    } else if (json.ExamResultSubjects && json.ExamResultSubjects.length > 0) {
+                        const subjects = json.ExamResultSubjects.map(
                             subj => {
-
-                                const total =
-
-                                    Number(
-                                        subj.TotalMark || 0
-                                    );
-
+                                const total = Number(subj.TotalMark || 0);
                                 return {
-
                                     registerNo,
-
-                                    student:
-                                        json.StudentName,
-
-                                    department:
-                                        json.DepartmentName,
-
-                                    batch:
-                                        json.BatchName,
-
-                                    semester:
-                                        Number(
-                                            subj.SemesterNo || 0
-                                        ),
-
-                                    subjectCode:
-                                        subj.SubjectCode,
-
-                                    subjectName:
-                                        subj.SubjectName,
-
-                                    internalMarks:
-                                        Number(
-                                            subj.InternalMark || 0
-                                        ),
-
-                                    externalMarks:
-                                        Number(
-                                            subj.ExternalMark || 0
-                                        ),
-
-                                    totalMarks:
-                                        total,
-
-                                    credits:
-                                        Number(
-                                            subj.CreditPoint || 4
-                                        ),
-
-                                    grade:
-
-                                        subj.Grade ||
-
-                                        getGradeFromMarks(
-                                            total
-                                        ),
-
-                                    status:
-
-                                        total >= 40
-                                            ? 'Pass'
-                                            : 'Fail',
-
-                                    photoUrl:
-
-                                        studentInfo?.Student_Seq
-
-                                            ? `${process.env.BASE_URL || 'http://localhost:5000'}/api/student-photo/${studentInfo.Student_Seq}`
-
-                                            : null
+                                    student: json.StudentName,
+                                    department: json.DepartmentName,
+                                    batch: json.BatchName,
+                                    semester: Number(subj.SemesterNo || 0),
+                                    subjectCode: subj.SubjectCode,
+                                    subjectName: subj.SubjectName,
+                                    internalMarks: Number(subj.InternalMark || 0),
+                                    externalMarks: Number(subj.ExternalMark || 0),
+                                    totalMarks: total,
+                                    credits: Number(subj.CreditPoint || 4),
+                                    grade: subj.Grade || getGradeFromMarks(total),
+                                    status: total >= 40 ? 'Pass' : 'Fail',
+                                    isResultHolded: 'N',
+                                    resultStatus: json.ResultStatus || 'Declared',
+                                    semesterExamId: exam.id,
+                                    photoUrl: studentInfo?.Student_Seq
+                                        ? `${process.env.BASE_URL || 'http://localhost:5001'}/api/student-photo/${studentInfo.Student_Seq}`
+                                        : null
                                 };
                             }
                         );
-
-                    allSubjects.push(
-                        ...subjects
-                    );
+                        allSubjects.push(...subjects);
+                    }
                 }
             } catch (examError) {
                 console.warn(`  Warning: Failed to fetch ${exam.name} for ${registerNo}:`, examError.response?.data?.Message || examError.message);
@@ -207,6 +210,11 @@ async function scrapeResults(
 
             ).values()
         ];
+
+        const semestersToUpdate = [...new Set(uniqueSubjects.map(item => item.semester))];
+        for (const sem of semestersToUpdate) {
+            await Result.deleteMany({ registerNo, semester: sem });
+        }
 
         for (const item of uniqueSubjects) {
 
@@ -261,7 +269,7 @@ async function scrapeResults(
 
                 studentInfo?.Student_Seq
 
-                    ? `${process.env.BASE_URL || 'http://localhost:5000'}/api/student-photo/${studentInfo.Student_Seq}`
+                    ? `${process.env.BASE_URL || 'http://localhost:5001'}/api/student-photo/${studentInfo.Student_Seq}`
 
                     : null,
 

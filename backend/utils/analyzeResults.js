@@ -1,6 +1,10 @@
 function analyzeResults(results) {
 
-    if (!results.length) {
+    const activeResults = results.filter(
+        r => r.isResultHolded !== 'Y' && r.resultStatus !== 'With Held'
+    );
+
+    if (!activeResults.length) {
 
         return {
 
@@ -66,7 +70,7 @@ function analyzeResults(results) {
         'U'
     ];
 
-    results.forEach(result => {
+    activeResults.forEach(result => {
 
         const credits =
             result.credits || 4;
@@ -185,7 +189,7 @@ function analyzeResults(results) {
 
             (
                 totalMarks /
-                results.length
+                activeResults.length
             ).toFixed(1),
 
         highestMark,
@@ -196,7 +200,7 @@ function analyzeResults(results) {
 
         backlogs:
 
-            results.filter(
+            activeResults.filter(
                 r => r.grade === 'U'
             ).length,
 
@@ -204,7 +208,7 @@ function analyzeResults(results) {
 
             (
                 (passCount /
-                    results.length) * 100
+                    activeResults.length) * 100
             ).toFixed(1),
 
         gradeDistribution

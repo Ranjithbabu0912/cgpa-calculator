@@ -6,11 +6,32 @@ const AnalysisDashboard = ({ data }) => {
 
     if (!data || !data.results) return null;
 
+    const activeResults = data.results.filter(
+        r => r.isResultHolded !== 'Y' && r.resultStatus !== 'With Held'
+    );
+
+    if (activeResults.length === 0) {
+        return (
+            <div className="analysis-dashboard">
+                <div style={{
+                    textAlign: 'center',
+                    padding: '40px',
+                    background: 'rgba(239, 68, 68, 0.05)',
+                    border: '1px dashed rgba(239, 68, 68, 0.2)',
+                    borderRadius: '12px',
+                    color: 'var(--text-secondary)'
+                }}>
+                    No results available for analysis (Results Withheld due to pending dues).
+                </div>
+            </div>
+        );
+    }
+
     const avgMarks = (
-        data.results.reduce(
+        activeResults.reduce(
             (sum, r) => sum + r.totalMarks,
             0
-        ) / data.results.length
+        ) / activeResults.length
     ).toFixed(1);
 
     const gradesOrder = [
@@ -36,7 +57,7 @@ const AnalysisDashboard = ({ data }) => {
     ];
 
     const sortedResults =
-        [...data.results].sort(
+        [...activeResults].sort(
 
             (a, b) =>
 
@@ -48,7 +69,7 @@ const AnalysisDashboard = ({ data }) => {
         sortedResults[0]?.grade || '-';
 
     const backlogs =
-        data.results.filter(
+        activeResults.filter(
 
             r =>
                 r.grade === 'U' ||

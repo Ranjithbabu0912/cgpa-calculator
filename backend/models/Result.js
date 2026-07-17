@@ -35,6 +35,10 @@ const resultSchema = new mongoose.Schema({
 
     semesterExamId: Number,
 
+    isResultHolded: String,
+
+    resultStatus: String,
+
     updatedAt: {
         type: Date,
         default: Date.now

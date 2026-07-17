@@ -56,7 +56,7 @@ app.get('/api/health', (req, res) => {
 
 // Start
 const PORT =
-    process.env.PORT || 5000;
+    process.env.PORT || 5001;
 
 app.listen(PORT, () => {
     // Nodemon reload trigger comment updated for Gemini API fix

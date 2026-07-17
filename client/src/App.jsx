@@ -22,7 +22,7 @@ import ManualMarksManager from "./components/ManualMarksManager";
 const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5000"
+    ? "http://localhost:5001"
     : "https://cgpa-backend-1wfh.onrender.com";
 
 function App() {
@@ -370,63 +370,73 @@ function App() {
               </div>
 
               <div className="tab-content" style={{ marginTop: "30px" }}>
-                {activeTab === "sgpa" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={sgpaGridStyle}
-                  >
-                    {data.sgpa.map((sem) => (
-                      <div
-                        key={sem.semester}
-                        className="glass-card"
-                        style={sgpaCardStyleItem}
-                      >
-                        <div
-                          style={{
-                            fontSize: "0.9rem",
-                            color: "var(--text-secondary)",
-                          }}
-                        >
-                          Semester {sem.semester}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "2rem",
-                            fontWeight: 800,
-                            color: "var(--primary)",
-                            marginTop: "10px",
-                          }}
-                        >
-                          {sem.sgpa}
-                        </div>
-                        <div
-                          style={{
-                            height: "4px",
-                            width: "40px",
-                            background: "var(--primary)",
-                            margin: "15px auto 0",
-                            borderRadius: "2px",
-                          }}
-                        ></div>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
+                {activeTab === "sgpa" && (() => {
+                  const semestersList = [...new Set(data.results.map((r) => r.semester))].sort((a, b) => a - b);
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={sgpaGridStyle}
+                    >
+                      {semestersList.map((semNum) => {
+                        const semSgpaObj = data.sgpa.find((s) => s.semester === semNum);
+                        const isSemWithheld = data.results.some(
+                          (r) => r.semester === semNum && (r.isResultHolded === "Y" || r.resultStatus === "With Held")
+                        );
+                        return (
+                          <div
+                            key={semNum}
+                            className="glass-card"
+                            style={sgpaCardStyleItem}
+                          >
+                            <div
+                              style={{
+                                fontSize: "0.9rem",
+                                color: "var(--text-secondary)",
+                              }}
+                            >
+                              Semester {semNum}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: isSemWithheld ? "1.1rem" : "2rem",
+                                fontWeight: 800,
+                                color: isSemWithheld ? "var(--danger)" : "var(--primary)",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {isSemWithheld ? "Withheld (Dues Pending)" : (semSgpaObj?.sgpa || "N/A")}
+                            </div>
+                            <div
+                              style={{
+                                height: "4px",
+                                width: "40px",
+                                background: isSemWithheld ? "var(--danger)" : "var(--primary)",
+                                margin: "15px auto 0",
+                                borderRadius: "2px",
+                              }}
+                            ></div>
+                          </div>
+                        );
+                      })}
+                    </motion.div>
+                  );
+                })()}
 
-                {activeTab === "results" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={sgpaGridStyle}
-                  >
-                    {[1, 2]
-                      .filter((sem) =>
-                        data.results.some((r) => r.semester === sem),
-                      )
-                      .map((sem) => {
+                {activeTab === "results" && (() => {
+                  const semestersList = [...new Set(data.results.map((r) => r.semester))].sort((a, b) => a - b);
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={sgpaGridStyle}
+                    >
+                      {semestersList.map((sem) => {
                         const semResults = data.results.filter(
                           (r) => r.semester === sem,
+                        );
+                        const isSemWithheld = semResults.some(
+                          (r) => r.isResultHolded === "Y" || r.resultStatus === "With Held"
                         );
                         const totalSubjects = semResults.length;
                         const passCount = semResults.filter(
@@ -442,62 +452,91 @@ function App() {
                         return (
                           <motion.div
                             key={sem}
-                            whileHover={{ scale: 1.02, translateY: -4 }}
+                            whileHover={isSemWithheld ? {} : { scale: 1.02, translateY: -4 }}
                             className="glass-card"
-                            onClick={() => setSelectedSemesterResults(sem)}
-                            style={semesterCardStyle}
+                            onClick={() => {
+                              if (!isSemWithheld) {
+                                setSelectedSemesterResults(sem);
+                              }
+                            }}
+                            style={{
+                              ...semesterCardStyle,
+                              cursor: isSemWithheld ? "default" : "pointer",
+                              borderColor: isSemWithheld ? "rgba(239, 68, 68, 0.3)" : "var(--border)"
+                            }}
                           >
                             <div style={semesterCardHeaderStyle}>
                               <GraduationCap
                                 size={24}
-                                style={{ color: "var(--primary)" }}
+                                style={{ color: isSemWithheld ? "var(--danger)" : "var(--primary)" }}
                               />
                               <span style={semesterCardTitleStyle}>
                                 Semester {sem}
                               </span>
                             </div>
-                            <div style={semesterCardStatsStyle}>
-                              <div style={semesterCardStatItemStyle}>
-                                <span style={semesterCardStatLabelStyle}>
-                                  SGPA
-                                </span>
-                                <span style={semesterCardStatValueStyle}>
-                                  {semSgpa}
-                                </span>
+
+                            {isSemWithheld ? (
+                              <div style={{
+                                marginTop: "15px",
+                                padding: "12px 15px",
+                                background: "rgba(239, 68, 68, 0.1)",
+                                border: "1px solid rgba(239, 68, 68, 0.2)",
+                                borderRadius: "8px",
+                                color: "#fca5a5",
+                                fontSize: "0.85rem",
+                                lineHeight: "1.4",
+                                textAlign: "center",
+                                fontWeight: "500"
+                              }}>
+                                ⚠️ Due pending, please clear that for view that particular semester result.
                               </div>
-                              <div style={semesterCardStatItemStyle}>
-                                <span style={semesterCardStatLabelStyle}>
-                                  Subjects
-                                </span>
-                                <span style={semesterCardStatValueStyle}>
-                                  {totalSubjects}
-                                </span>
-                              </div>
-                              <div style={semesterCardStatItemStyle}>
-                                <span style={semesterCardStatLabelStyle}>
-                                  Backlogs
-                                </span>
-                                <span
-                                  style={{
-                                    ...semesterCardStatValueStyle,
-                                    color:
-                                      failCount > 0
-                                        ? "var(--danger)"
-                                        : "var(--success)",
-                                  }}
-                                >
-                                  {failCount}
-                                </span>
-                              </div>
-                            </div>
-                            <div style={viewDetailsBtnStyle}>
-                              View Results <ChevronRight size={16} />
-                            </div>
+                            ) : (
+                              <>
+                                <div style={semesterCardStatsStyle}>
+                                  <div style={semesterCardStatItemStyle}>
+                                    <span style={semesterCardStatLabelStyle}>
+                                      SGPA
+                                    </span>
+                                    <span style={semesterCardStatValueStyle}>
+                                      {semSgpa}
+                                    </span>
+                                  </div>
+                                  <div style={semesterCardStatItemStyle}>
+                                    <span style={semesterCardStatLabelStyle}>
+                                      Subjects
+                                    </span>
+                                    <span style={semesterCardStatValueStyle}>
+                                      {totalSubjects}
+                                    </span>
+                                  </div>
+                                  <div style={semesterCardStatItemStyle}>
+                                    <span style={semesterCardStatLabelStyle}>
+                                      Backlogs
+                                    </span>
+                                    <span
+                                      style={{
+                                        ...semesterCardStatValueStyle,
+                                        color:
+                                          failCount > 0
+                                            ? "var(--danger)"
+                                            : "var(--success)",
+                                      }}
+                                    >
+                                      {failCount}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div style={viewDetailsBtnStyle}>
+                                  View Results <ChevronRight size={16} />
+                                </div>
+                              </>
+                            )}
                           </motion.div>
                         );
                       })}
-                  </motion.div>
-                )}
+                    </motion.div>
+                  );
+                })()}
 
                 {activeTab === "analysis" && (
                   <div className="no-print">

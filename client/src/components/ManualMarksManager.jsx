@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000'
+    ? 'http://localhost:5001'
     : 'https://cgpa-backend-1wfh.onrender.com';
 
 const initialForm = {

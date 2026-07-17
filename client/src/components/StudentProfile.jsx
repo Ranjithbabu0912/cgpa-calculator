@@ -32,12 +32,20 @@ const StudentProfile = ({ data, registerNo }) => {
                             <td className="info-label" style={labelStyle}>Status</td>
                             <td style={colonStyle}>:</td>
                             <td style={valueStyle}>
-                                <span style={{
-                                    color: data.results?.some(r => r.status === 'Fail') ? 'var(--danger)' : '#10b981',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {data.results?.some(r => r.status === 'Fail') ? 'BACKLOGS FOUND' : 'ALL PASS'}
-                                </span>
+                                 <span style={{
+                                     color: data.results?.some(r => r.status === 'Fail' && r.isResultHolded !== 'Y' && r.resultStatus !== 'With Held') 
+                                         ? 'var(--danger)' 
+                                         : data.results?.some(r => r.isResultHolded === 'Y' || r.resultStatus === 'With Held') 
+                                             ? 'var(--warning)' 
+                                             : '#10b981',
+                                     fontWeight: 'bold'
+                                 }}>
+                                     {data.results?.some(r => r.status === 'Fail' && r.isResultHolded !== 'Y' && r.resultStatus !== 'With Held') 
+                                         ? 'BACKLOGS FOUND' 
+                                         : data.results?.some(r => r.isResultHolded === 'Y' || r.resultStatus === 'With Held') 
+                                             ? 'ALL PASS (WITHHELD DUE TO PENDING DUES)' 
+                                             : 'ALL PASS'}
+                                 </span>
                             </td>
                         </tr>
                     </tbody>

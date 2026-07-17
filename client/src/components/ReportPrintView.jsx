@@ -63,18 +63,21 @@ const ReportPrintView = ({ data, registerNo }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.results.map((r, i) => (
-                            <tr key={i}>
-                                <td style={tdStyle}>{i + 1}</td>
-                                <td style={tdStyle}>{r.semester}</td>
-                                <td style={tdStyle}>{r.subjectCode}</td>
-                                <td style={{ ...tdStyle, textAlign: 'left' }}>{r.subjectName}</td>
-                                <td style={tdStyle}>{r.internalMarks}</td>
-                                <td style={tdStyle}>{r.externalMarks}</td>
-                                <td style={tdStyle}>{r.totalMarks}</td>
-                                <td style={tdStyle}>{r.totalMarks >= 40 ? 'Pass' : 'RA'}</td>
-                            </tr>
-                        ))}
+                        {data.results
+                            .filter(r => r.isResultHolded !== 'Y' && r.resultStatus !== 'With Held')
+                            .map((r, i) => (
+                                <tr key={i}>
+                                    <td style={tdStyle}>{i + 1}</td>
+                                    <td style={tdStyle}>{r.semester}</td>
+                                    <td style={tdStyle}>{r.subjectCode}</td>
+                                    <td style={{ ...tdStyle, textAlign: 'left' }}>{r.subjectName}</td>
+                                    <td style={tdStyle}>{r.internalMarks}</td>
+                                    <td style={tdStyle}>{r.externalMarks}</td>
+                                    <td style={tdStyle}>{r.totalMarks}</td>
+                                    <td style={tdStyle}>{r.totalMarks >= 40 ? 'Pass' : 'RA'}</td>
+                                </tr>
+                            ))
+                        }
                     </tbody>
                 </table>
 
@@ -89,6 +92,35 @@ const ReportPrintView = ({ data, registerNo }) => {
                         <div>CGPA: <strong>{data.cgpa}</strong></div>
                     </div>
                 </div>
+
+                {(() => {
+                    const withheldSemesters = [...new Set(data.results
+                        .filter(r => r.isResultHolded === 'Y' || r.resultStatus === 'With Held')
+                        .map(r => r.semester)
+                    )].sort((a, b) => a - b);
+                    
+                    if (withheldSemesters.length === 0) return null;
+
+                    return (
+                        <div style={{ marginTop: '20px', borderTop: '1px dashed #ef4444', paddingTop: '15px' }}>
+                            {withheldSemesters.map(sem => (
+                                <div key={sem} style={{
+                                    marginBottom: '8px',
+                                    padding: '10px 15px',
+                                    backgroundColor: '#fef2f2',
+                                    border: '1px solid #fee2e2',
+                                    borderRadius: '6px',
+                                    color: '#b91c1c',
+                                    fontSize: '9.5pt',
+                                    fontWeight: 'bold',
+                                    textAlign: 'center'
+                                }}>
+                                    ⚠️ Semester {sem} Results Withheld: Due pending, please clear that to view that particular semester result.
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })()}
             </div>
 
             {/* Signature Section */}
