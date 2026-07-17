@@ -28,23 +28,28 @@ router.post(
 
             const uppercaseRegNo = registerNo.toUpperCase();
 
-            // Check if results already exist in database and return them instantly
+            // Check if results already exist in database and return them instantly if fresh (under 2 hours old)
             if (!forceRefresh) {
                 const existingResults = await Result.find({ registerNo: uppercaseRegNo });
                 if (existingResults.length > 0) {
-                    const analyzeResults = require('../utils/analyzeResults');
-                    const analytics = analyzeResults(existingResults);
                     const firstResult = existingResults[0];
-                    return res.json({
-                        success: true,
-                        student: firstResult.student,
-                        department: firstResult.department,
-                        batch: firstResult.batch,
-                        photoUrl: firstResult.photoUrl,
-                        results: existingResults,
-                        isCached: true,
-                        ...analytics
-                    });
+                    const cacheAge = Date.now() - new Date(firstResult.updatedAt || 0).getTime();
+                    const cacheTimeout = 2 * 60 * 60 * 1000; // 2 hours
+
+                    if (cacheAge < cacheTimeout) {
+                        const analyzeResults = require('../utils/analyzeResults');
+                        const analytics = analyzeResults(existingResults);
+                        return res.json({
+                            success: true,
+                            student: firstResult.student,
+                            department: firstResult.department,
+                            batch: firstResult.batch,
+                            photoUrl: firstResult.photoUrl,
+                            results: existingResults,
+                            isCached: true,
+                            ...analytics
+                        });
+                    }
                 }
             }
 

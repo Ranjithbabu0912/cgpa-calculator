@@ -228,7 +228,10 @@ async function scrapeResults(
                 },
 
                 {
-                    $set: item
+                    $set: {
+                        ...item,
+                        updatedAt: new Date()
+                    }
                 },
 
                 {
